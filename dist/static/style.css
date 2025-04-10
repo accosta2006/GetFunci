@@ -1,0 +1,180 @@
+h1 {
+    position: absolute;
+    top: 4%;
+    left: 5%;
+    margin: 0;
+    font-size: 24px;
+    color: #ffffff;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1c1c1c;
+}
+#login-section {
+    width: 300px;
+    padding: 20px;
+    background-color: rgb(31, 31, 31);
+    border: 1px solid #313131;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+#options-section {
+    width: 80%;
+    padding: 20px;
+    background-color: rgb(31, 31, 31);
+    border: 1px solid #313131;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #ffffff;
+}
+
+#username_label, #password_label {
+    color: #ffffff;
+}
+
+h1, h2 {
+    margin-bottom: 20px;
+}
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+input, select, button {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #313131;
+    border-radius: 4px;
+}
+button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#logout-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    display: none; 
+    position: absolute; 
+    top: 2%; 
+    right: 6%;
+    width: 100px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+#result {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid rgb(25,25,25);
+    background-color: #1d1d1d;
+    height: 80%;
+    text-align: left;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-y: auto;
+}
+
+#result_header{
+    color: #ffffff
+}
+
+#options-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    width: 30%;
+    max-width: 800px;
+    float: left;
+}
+
+#options-menu {
+    width: 100%;
+    padding: 20px;
+    color: #ffffff;
+    background-color: rgb(31, 31, 31);
+    border-radius: 8px;
+}
+
+#result-box {
+    width: 65%;
+    flex-grow: 1;
+    padding: 20px;
+    color: #ffffff;
+    background-color: rgb(31, 31, 31);
+    border-radius: 8px;
+    height: 460px;
+    font-family: monospace;
+    float: right;
+}
+
+input, select {
+    background-color: #1c1c1c;
+    color: #ffffff;
+}
+
+#logo {
+    position: absolute;
+    top: 3.5%;
+    left: 1%;
+    width: 50px;
+    height: auto;
+}
+#password, #username {
+    background-color: #1c1c1c;
+    color: #ffffff;
+}
+
+#footer_div{
+    position: absolute; bottom: 0; left: 0; width: 100%; text-align: center; color: #ffffff; font-size: 12px;
+}
+
+#dark-mode-btn {
+    position: absolute;
+    top: 1%;
+    right: 2%;
+    width: 50px;
+    height: 50px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+#darkmode {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    pointer-events: none; /* Prevent the image from interfering with button clicks */
+}

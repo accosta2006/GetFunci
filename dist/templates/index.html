@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GetFunci</title>
+    <link rel="icon" type="image/x-icon" href="/static/azores.ico">
+    <link rel="stylesheet" href="static/style_white.css">
+</head>
+<body>
+    <img src="static/azores.png" id="logo" alt="Logo">
+    <h1>GetFunci</h1>
+    <button id="logout-btn">Logout</button>
+    <button id="dark-mode-btn">
+        <img id="darkmode" src="static/darkmode.png" alt="Dark Mode">
+    </button>
+    <script>
+        document.getElementById('dark-mode-btn').addEventListener('click', function() {
+            const link = document.querySelector('link[rel="stylesheet"]');
+            const darkModeImage = document.getElementById('darkmode');
+            const isDarkMode = link.getAttribute('href') === 'static/style_white.css';
+
+            // Toggle the stylesheet
+            link.setAttribute('href', isDarkMode ? 'static/style.css' : 'static/style_white.css');
+
+            // Update the image based on the mode
+            darkModeImage.setAttribute('src', isDarkMode ? 'static/whitemode.png' : 'static/darkmode.png');
+
+            // Save the mode in localStorage
+            localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const link = document.querySelector('link[rel="stylesheet"]');
+            const darkModeImage = document.getElementById('darkmode');
+
+            // Check the saved mode in localStorage
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                link.setAttribute('href', 'static/style.css');
+                darkModeImage.setAttribute('src', 'static/whitemode.png'); // Set to white mode image
+            } else {
+                link.setAttribute('href', 'static/style_white.css');
+                darkModeImage.setAttribute('src', 'static/darkmode.png'); // Set to dark mode image
+            }
+        });
+    </script>
+    <div id="login-section">
+        <h2>Login</h2>
+        <form id="login-form" method="POST" action="/login">
+            <div class="form-group">
+                <label id="username_label" for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label id="password_label" for="password">Password (MyTeam Admin):</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div id="options-section">
+        <div id="options-container">
+            <div id="options-menu">
+                <div class="form-group">
+                    <label for="search-username">Utilizador:</label>
+                    <input type="text" id="search-username" placeholder="Enter username">
+                    <button id="search-username-btn">Procurar</button>
+                </div>
+                <div class="form-group">
+                    <label for="search-name">Nome do Colaborador:</label>
+                    <input type="text" id="search-name" placeholder="Enter name">
+                    <button id="search-name-btn">Procurar</button>
+                </div>
+                <div class="form-group">
+                    <label for="impressoras">Procurar por piso:</label>
+                    <select id="impressoras">
+                        <option value="2º PISO">2º PISO</option>
+                        <option value="3º PISO">3º PISO</option>
+                        <option value="4º PISO">4º PISO</option>
+                        <option value="6º PISO">6º PISO</option>
+                        <option value="IRAE">IRAE</option>
+                        <option value="RVAH">RVAH</option>
+                        <option value="NOF">NOF</option>
+                        <option value="RVH">RVH</option>
+                        <option value="IRT - Faial">IRT - Faial</option>
+                        <option value="IRT - Terceira">IRT - Terceira</option>
+                        <option value="NOT">NOT</option>
+                    </select>
+                    <button id="search-impressora-btn">Procurar</button>
+                </div>
+                <div class="form-group">
+                    <label for="search-ip">Procurar impressora por IP:</label>
+                    <input type="text" id="search-ip" placeholder="Enter IP address">
+                    <button id="search-ip-btn">Procurar</button>
+                </div>
+            </div>
+        </div>
+        <div id="result-box">
+            <h3 id="result_header">Resultado</h3>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if(localStorage.getItem('isLoggedIn') === null) {
+                localStorage.setItem('isLoggedIn', 'false');
+            }
+            if (isLoggedIn === 'true') {
+                document.getElementById('logout-btn').style.display = 'block';
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('options-section').style.display = 'block';
+            }
+            else {
+                document.getElementById('logout-btn').style.display = 'none';
+                document.getElementById('login-section').style.display = 'block';
+                document.getElementById('options-section').style.display = 'none';
+            }
+        });
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.setItem('isLoggedIn', 'false');
+            document.getElementById('logout-btn').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('options-section').style.display = 'none';
+        });
+        function formatResult(data) {
+            if (Array.isArray(data)) {
+                return data.map(item => {
+                    return Object.entries(item)
+                        .map(([key, value]) => `        ${key}: ${value}`)
+                        .join('\n');
+                }).join('\n\n');
+            } else if (data.error) {
+                return `Error: ${data.error}`;
+            }
+            return 'No results found.';
+        }   
+
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        localStorage.setItem('isLoggedIn', 'true');
+                        document.getElementById('logout-btn').style.display = 'block';
+                        document.getElementById('login-section').style.display = 'none';
+                        document.getElementById('options-section').style.display = 'block';
+                    } else {
+                        alert('Login failed: ' + result.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                localStorage.setItem('isLoggedIn', 'false');
+            }
+        });
+
+        document.getElementById('search-username-btn').addEventListener('click', async function() {
+            const username = document.getElementById('search-username').value;
+            try {
+                const response = await fetch(`/search_user?user=${username}`);
+                const data = await response.json();
+                document.getElementById('result').innerText = formatResult(data);
+            } catch (error) {
+                console.error('Error fetching username:', error);
+                document.getElementById('result').innerText = 'Error fetching username.';
+            }
+        });
+
+        document.getElementById('search-name-btn').addEventListener('click', async function() {
+            const name = document.getElementById('search-name').value;
+            try {
+                const response = await fetch(`/search_name?name=${name}`);
+                const data = await response.json();
+                document.getElementById('result').innerText = formatResult(data);
+            } catch (error) {
+                console.error('Error fetching name:', error);
+                document.getElementById('result').innerText = 'Error fetching name.';
+            }
+        });
+
+        document.getElementById('search-impressora-btn').addEventListener('click', async function() {
+            const impressora = document.getElementById('impressoras').value;
+            try {
+                const response = await fetch(`/printers_by_location?location=${impressora}`);
+                const data = await response.json();
+                document.getElementById('result').innerText = formatResult(data);
+            } catch (error) {
+                console.error('Error fetching impressora:', error);
+                document.getElementById('result').innerText = 'Error fetching impressora.';
+            }
+        });
+
+        document.getElementById('search-ip-btn').addEventListener('click', async function() {
+            const ip = document.getElementById('search-ip').value;
+            try {
+                const response = await fetch(`/search_printer_by_ip?ip=${ip}`);
+                const data = await response.json();
+                document.getElementById('result').innerText = formatResult(data);
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+                document.getElementById('result').innerText = 'Error fetching IP.';
+            }
+        });
+    </script>
+</body>
+<footer>
+    <div id="footer_div">
+        <p>GetFunci - Azores</p>
+        <p>Version 1.0.0</p>
+    </div>
+</footer>
+</html>

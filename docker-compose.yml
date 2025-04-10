@@ -1,0 +1,9 @@
+services:
+  ubuntu:
+    build: .
+    container_name: getfunci_container
+    ports:
+      - 80:5000
+    volumes:
+      - ./dist:/home/ubuntu/app
+    tty: true
