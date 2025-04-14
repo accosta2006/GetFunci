@@ -12,6 +12,49 @@ app.secret_key = 'e42b99233b821df3d7cc9ecdddf6439c'
 def home():
     return render_template('index.html')
 
+@app.route('/login', methods=['POST'])
+def login():
+    session = requests.Session()
+    data = request.get_json()  # Parse JSON data from the request
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+    
+    login_url = "https://myteam.azores.gov.pt/admin/site/login"
+
+    response = session.get(login_url)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to access login page"}), 500
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    csrf_token = soup.find("input", {"name": "_csrf-backend"})["value"]
+
+    login_data = {
+        "_csrf-backend": csrf_token.strip("=="),
+        "LoginForm[username]": username,
+        "LoginForm[password]": password,
+        "LoginForm[rememberMe]": "1",
+        "login-button": ""
+    }
+
+    print("Login data:", login_data)
+
+    response = session.post(login_url, data=login_data, allow_redirects=True)
+
+    # Debugging: Log the response content
+    print("Login Response Content:", response.url)
+
+    # Check if login was successful
+    if response.url == "https://myteam.azores.gov.pt/admin/":
+        flask_session['sessions'] = session.cookies.get_dict()
+        return jsonify({"message": "Login successful", "success": True}), 200
+    elif response.url == "https://myteam.azores.gov.pt/admin/site/login":
+        return jsonify({"message": "Invalid username or password.", "success": False}), 401
+    else:
+        return jsonify({"message": "Unable to process login.", "success": False}), 500
+
 @app.route('/search_user', methods=['GET'])
 def search_user():
     user = request.args.get('user')
@@ -155,49 +198,6 @@ def impressoras():
         else:
             return jsonify({"error": "Invalid location"}), 400
     return jsonify({"error": "Sem parâmetro de localização"}), 400
-
-@app.route('/login', methods=['POST'])
-def login():
-    session = requests.Session()
-    data = request.get_json()  # Parse JSON data from the request
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return jsonify({"error": "Username and password are required"}), 400
-    
-    login_url = "https://myteam.azores.gov.pt/admin/site/login"
-
-    response = session.get(login_url)
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to access login page"}), 500
-
-    soup = BeautifulSoup(response.text, "html.parser")
-    csrf_token = soup.find("input", {"name": "_csrf-backend"})["value"]
-
-    login_data = {
-        "_csrf-backend": csrf_token.strip("=="),
-        "LoginForm[username]": username,
-        "LoginForm[password]": password,
-        "LoginForm[rememberMe]": "0",
-        "login-button": ""
-    }
-
-    print("Login data:", login_data)
-
-    response = session.post(login_url, data=login_data, allow_redirects=True)
-
-    # Debugging: Log the response content
-    print("Login Response Content:", response.url)
-
-    # Check if login was successful
-    if response.url == "https://myteam.azores.gov.pt/admin/":
-        flask_session['sessions'] = session.cookies.get_dict()
-        return jsonify({"message": "Login successful", "success": True}), 200
-    elif response.url == "https://myteam.azores.gov.pt/admin/site/login":
-        return jsonify({"message": "Invalid username or password.", "success": False}), 401
-    else:
-        return jsonify({"message": "Unable to process login.", "success": False}), 500
 
 def create_session_from_cookies():
     session = requests.Session()
